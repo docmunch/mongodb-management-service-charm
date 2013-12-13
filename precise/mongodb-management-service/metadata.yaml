@@ -1,17 +1,11 @@
 name: mongodb-management-service
-summary: <Fill in summary here>
-maintainer: max cantor <max.cantor@ubuntu-vbox>
+summary: A charm that will install the MMS agent to monitor a mongodb installation
+maintainer: max cantor <max@docmunch.com>
 description: |
   <Multi-line description here>
 categories:
   - misc
 subordinate: false
-provides:
-  provides-relation:
-    interface: interface-name
 requires:
-  requires-relation:
-    interface: interface-name
-peers:
-  peer-relation:
-    interface: interface-name
+  database:
+    interface: mongodb

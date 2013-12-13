@@ -5,4 +5,22 @@
 # failing to account for a debconf question on a dependency, or trying to pull
 # from github without installing git first.
 
+set -e
+
+cd /tmp
+
+MMS_URL="https://mms.mongodb.com/settings/mms-monitoring-agent.tar.gz"
+
+juju-log "easy_install pymongo"
+
+easy_install hashlib
+easy_install pymongo
+juju-log "Downloading from ${MMS_URL}"
+curl -O MMS_URL
+tar zxvf mms-monitoring-agent.tar.gz
+
+wait
+
+
+
 apt-get install -y mongodb-management-service

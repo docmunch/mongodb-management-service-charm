@@ -1,14 +1,7 @@
 options:
-  string-option:
+  mms-api-key:
     type: string
-    default: "Default Value"
-    description: "A short description of the configuration option"
-  boolean-option:
-    type: boolean
-    default: False
-    description: "A short description of the configuration option"
-  int-option:
-    type: int
-    default: 9001
-    description: "A short description of the configuration option"
-
+    description: "The MMS Api Key"
+  mms-secret-key:
+    type: string
+    description: "Your MMS Secret Key"
