@@ -1,0 +1,17 @@
+name: mongodb-management-service
+summary: <Fill in summary here>
+maintainer: max cantor <max.cantor@ubuntu-vbox>
+description: |
+  <Multi-line description here>
+categories:
+  - misc
+subordinate: false
+provides:
+  provides-relation:
+    interface: interface-name
+requires:
+  requires-relation:
+    interface: interface-name
+peers:
+  peer-relation:
+    interface: interface-name
