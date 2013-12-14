@@ -8,7 +8,7 @@ set -e
 
 . $CHARM_DIR/scripts/common-variables.sh
 
-juju-log "all relations:\n$(relation-get)"
+# juju-log "all relations:\n$(relation-get)"
 
 MONGO_HOST=$(relation-get private-address)
 MONGO_IP=$(dig +short ${MONGO_HOST})
@@ -26,7 +26,12 @@ if [ $MONGO_HOST_NAME = "localhost" ]; then
 fi
 
 sed -i.bak "/${MONGO_HOST_NAME} */d" $HOSTS_FILE
+juju-log "Adding host rec: \"${MONGO_IP}        ${MONGO_HOST_NAME}\""
 echo "${MONGO_IP}        ${MONGO_HOST_NAME}" >> $HOSTS_FILE
+
+LOG_DIR="/var/log/${SVC_NAME}"
+mkdir -p ${LOG_DIR}
+chown -R ${SVC_USER} ${LOG_DIR}
 
 cat <<EOF > /etc/init/${SVC_NAME}.conf
 #!upstart
@@ -43,10 +48,10 @@ setuid $SVC_USER
 chdir "${SVC_HOME}"
 
 script
-    nohup python agent.py 2>&1 | tee /var/log/mms-agent.log &
+    sh -l -c "nohup python agent.py 2>&1 | tee ${LOG_DIR}/${SVC_NAME}.log"
 end script
 EOF
 
-service "${SVC_NAME}" reload
+juju-log "Restarting ${SVC_NAME}"
 service "${SVC_NAME}" start || service "${SVC_NAME}" restart
 juju-log "started ${SVC_NAME}"

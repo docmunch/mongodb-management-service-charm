@@ -1,2 +1,27 @@
-#!/bin/sh
-# This hook runs when the full relation is removed (not just a single member)
+#!/bin/bash
+# This hook is executed each time a charm is upgraded after the new charm
+# contents have been unpacked
+# Best practice suggests you execute the hooks/install and
+# hooks/config-changed to ensure all updates are processed
+
+set -e
+
+. $CHARM_DIR/scripts/common-variables.sh
+
+MONGO_HOST_NAME=$(config-get mongo-host-name)
+if [ -z $MONGO_HOST_NAME ]; then juju-log "missing MONGO_HOST_NAME"; exit 666; fi
+
+if [ $MONGO_HOST_NAME = "localhost" ]; then
+  juju-log "the mms charm wont work if you call the host localhost"
+  exit 5
+fi
+
+sed -i.bak "/${MONGO_HOST_NAME} */d" $HOSTS_FILE
+
+service "${SVC_NAME}" stop || juju-log "already stopped"
+juju-log "stopped ${SVC_NAME}"
+rm -f /etc/init/${SVC_NAME}.conf.old
+
+juju-log "killing pstart file"
+mv /etc/init/${SVC_NAME}.conf /etc/init/${SVC_NAME}.conf.old
+rm /etc/init/${SVC_NAME}.conf
