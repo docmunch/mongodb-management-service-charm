@@ -14,6 +14,8 @@ MMS_URL="https://mms.mongodb.com/settings/mms-monitoring-agent.tar.gz"
 MMS_HOMEDIR="/srv/mongo-management-service/agent"
 MMS_UNPACKED_DIR="mms-agent"
 MMS_HOME="${MMS_HOME}/${MMS_UNPACKED_DIR}"
+juju-log "about to install python setuptools"
+apt-get install -y  python-setuptools python-dev
 juju-log "easy_install pymongo"
 
 easy_install hashlib
@@ -29,6 +31,7 @@ if [ ! -d /tmp/${MMS_UNPACKED_DIR} ]; then
 fi
 juju-log "making ${MMS_URL} user"
 # juju-log "pass check: $(grep ${MMS_URL} /etc/passwd)"
+mkdir -p ${MMS_HOMEDIR}
 grep ${SVC_USER} /etc/passwd || useradd ${SVC_USER} -d ${MMS_HOMEDIR}
 rm -rf ${MMS_HOMEDIR}/*
 cp -r /tmp/${MMS_UNPACKED_DIR} ${MMS_HOMEDIR}/

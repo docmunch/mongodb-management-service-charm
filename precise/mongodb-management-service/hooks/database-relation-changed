@@ -8,9 +8,14 @@ set -e
 
 . $CHARM_DIR/scripts/common-variables.sh
 
-MONGO_HOST=`relation-get private-address`
-juju-log "Database new host: $MONGO_HOST"
+juju-log "all relations:\n$(relation-get)"
+
+MONGO_HOST=$(relation-get private-address)
+MONGO_IP=$(dig +short ${MONGO_HOST})
+
 if [ -z $MONGO_HOST ]; then juju-log "missing host addres"; exit 5; fi
+if [ -z $MONGO_IP ] ; then juju-log "Could not get IP for host $MONGO_HOST"; exit 6; fi
+juju-log "Database new host: $MONGO_HOST"
 
 MONGO_HOST_NAME=$(config-get mongo-host-name)
 if [ -z $MONGO_HOST_NAME ]; then juju-log "missing MONGO_HOST_NAME"; exit 666; fi
@@ -21,7 +26,7 @@ if [ $MONGO_HOST_NAME = "localhost" ]; then
 fi
 
 sed -i.bak "/${MONGO_HOST_NAME} */d" $HOSTS_FILE
-cat "${MONGO_HOST}        ${MONGO_HOST_NAME}" >> $HOSTS_FILE
+echo "${MONGO_IP}        ${MONGO_HOST_NAME}" >> $HOSTS_FILE
 
 cat <<EOF > /etc/init/${SVC_NAME}.conf
 #!upstart
@@ -38,7 +43,7 @@ setuid $SVC_USER
 chdir "${SVC_HOME}"
 
 script
-    sh -l -c "python agent.py | tee /var/log/mms-agent.log 2>&1"
+    nohup python agent.py 2>&1 | tee /var/log/mms-agent.log &
 end script
 EOF
 
