@@ -2,3 +2,14 @@
 # Here put anything that is needed to start the service.
 # Note that currently this is run directly after install
 # i.e. 'service apache2 start'
+
+set -e
+
+. $CHARM_DIR/scripts/common-variables.sh
+
+if [ -f /etc/init/${SVC_NAME}.conf ]; then
+ service "${SVC_NAME}" start
+else
+ juju-log "${SVC_NAME} not ready yet.  cannot start"
+fi
+

@@ -7,20 +7,31 @@
 
 set -e
 
+. $CHARM_DIR/scripts/common-variables.sh
 cd /tmp
 
 MMS_URL="https://mms.mongodb.com/settings/mms-monitoring-agent.tar.gz"
-
+MMS_HOMEDIR="/srv/mongo-management-service/agent"
+MMS_UNPACKED_DIR="mms-agent"
+MMS_HOME="${MMS_HOME}/${MMS_UNPACKED_DIR}"
 juju-log "easy_install pymongo"
 
 easy_install hashlib
 easy_install pymongo
 juju-log "Downloading from ${MMS_URL}"
-curl -O MMS_URL
-tar zxvf mms-monitoring-agent.tar.gz
+rm -rf /tmp/mms.tgz
+rm -rf /tmp/${MMS_UNPACKED_DIR}
+curl -o /tmp/mms.tgz $MMS_URL
+tar zxvf mms.tgz
+if [ ! -d /tmp/${MMS_UNPACKED_DIR} ]; then
+  juju-log "Expected mms contents at /tmp/${MMS_UNPACKED_DIR}. not there."
+  exit 1
+fi
+juju-log "making ${MMS_URL} user"
+# juju-log "pass check: $(grep ${MMS_URL} /etc/passwd)"
+grep ${SVC_USER} /etc/passwd || useradd ${SVC_USER} -d ${MMS_HOMEDIR}
+rm -rf ${MMS_HOMEDIR}/*
+cp -r /tmp/${MMS_UNPACKED_DIR} ${MMS_HOMEDIR}/
+chown -R ${SVC_USER} ${MMS_HOMEDIR}
 
-wait
-
-
-
-apt-get install -y mongodb-management-service
+juju-log "Done installing mms"

@@ -1,4 +1,7 @@
 options:
+  mongo-host-name:
+    type: string
+    description: "The host that the MMS agent will monitor.  dont yse localhost":
   mms-api-key:
     type: string
     description: "The MMS Api Key"

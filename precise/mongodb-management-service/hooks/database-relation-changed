@@ -1,0 +1,47 @@
+#!/bin/bash
+# This hook is executed each time a charm is upgraded after the new charm
+# contents have been unpacked
+# Best practice suggests you execute the hooks/install and
+# hooks/config-changed to ensure all updates are processed
+
+set -e
+
+. $CHARM_DIR/scripts/common-variables.sh
+
+MONGO_HOST=`relation-get private-address`
+juju-log "Database new host: $MONGO_HOST"
+if [ -z $MONGO_HOST ]; then juju-log "missing host addres"; exit 5; fi
+
+MONGO_HOST_NAME=$(config-get mongo-host-name)
+if [ -z $MONGO_HOST_NAME ]; then juju-log "missing MONGO_HOST_NAME"; exit 666; fi
+
+if [ $MONGO_HOST_NAME = "localhost" ]; then
+  juju-log "the mms charm wont work if you call the host localhost"
+  exit 5
+fi
+
+sed -i.bak "/${MONGO_HOST_NAME} */d" $HOSTS_FILE
+cat "${MONGO_HOST}        ${MONGO_HOST_NAME}" >> $HOSTS_FILE
+
+cat <<EOF > /etc/init/${SVC_NAME}.conf
+#!upstart
+description "${SVC_NAME}"
+author      "${SVC_AUTHOR}"
+
+env PATH=/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+
+respawn
+start on runlevel [2345]
+stop on runlevel [016]
+
+setuid $SVC_USER
+chdir "${SVC_HOME}"
+
+script
+    sh -l -c "python agent.py | tee /var/log/mms-agent.log 2>&1"
+end script
+EOF
+
+service "${SVC_NAME}" reload
+service "${SVC_NAME}" start || service "${SVC_NAME}" restart
+juju-log "started ${SVC_NAME}"

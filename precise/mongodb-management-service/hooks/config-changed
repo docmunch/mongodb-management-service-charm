@@ -1,2 +1,15 @@
 #!/bin/bash
 # config-changed occurs everytime a new configuration value is updated (juju set)
+
+set -e
+
+. $CHARM_DIR/scripts/common-variables.sh
+
+MMS_API_KEY=$(config-get mms-api-key)
+if [ -z $MMS_API_KEY ]; then juju-log "missing MMS_API_KEY"; exit 666; fi
+
+MMS_SECRET_KEY=$(config-get mms-secret-key)
+if [ -z $MMS_SECRET_KEY ]; then juju-log "missing MMS_SECRET_KEY"; exit 666; fi
+
+sed -i.bak s/\@API_KEY\@/$MMS_API_KEY/ ${MMS_HOME}/settings.py
+sed -i.bak s/\@SECRET_KEY\@/$MMS_SECRET_KEY/ ${MMS_HOME}/settings.py
