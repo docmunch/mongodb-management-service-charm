@@ -7,10 +7,12 @@ set -e
 
 . $CHARM_DIR/scripts/common-variables.sh
 
-if [ -f /etc/init/${SVC_NAME}.conf ]; then
- service "${SVC_NAME}" stop
- rm /etc/init/${SVC_NAME}.conf
-else
- juju-log "${SVC_NAME} not ready yet.  cannot stop"
-fi
+stopJobs
+
+# if [ -f /etc/init/${SVC_NAME}.conf ]; then
+#  service "${SVC_NAME}" stop
+#  rm /etc/init/${SVC_NAME}.conf
+# else
+#  juju-log "${SVC_NAME} not ready yet.  cannot stop"
+# fi
 

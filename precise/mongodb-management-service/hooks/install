@@ -10,31 +10,60 @@ set -e
 . $CHARM_DIR/scripts/common-variables.sh
 cd /tmp
 
-MMS_URL="https://mms.mongodb.com/settings/mms-monitoring-agent.tar.gz"
-MMS_HOMEDIR="/srv/mongo-management-service/agent"
-MMS_UNPACKED_DIR="mms-agent"
-MMS_HOME="${MMS_HOME}/${MMS_UNPACKED_DIR}"
 juju-log "about to install python setuptools"
 apt-get install -y  python-setuptools python-dev
 juju-log "easy_install pymongo"
 
 easy_install hashlib
 easy_install pymongo
-juju-log "Downloading from ${MMS_URL}"
-rm -rf /tmp/mms.tgz
-rm -rf /tmp/${MMS_UNPACKED_DIR}
-curl -o /tmp/mms.tgz $MMS_URL
-tar zxvf mms.tgz
-if [ ! -d /tmp/${MMS_UNPACKED_DIR} ]; then
-  juju-log "Expected mms contents at /tmp/${MMS_UNPACKED_DIR}. not there."
-  exit 1
-fi
-juju-log "making ${MMS_URL} user"
-# juju-log "pass check: $(grep ${MMS_URL} /etc/passwd)"
+
+# Make User
+juju-log "making ${SVC_USER} user, clearing homedir contents"
 mkdir -p ${MMS_HOMEDIR}
-grep ${SVC_USER} /etc/passwd || useradd ${SVC_USER} -d ${MMS_HOMEDIR}
 rm -rf ${MMS_HOMEDIR}/*
-cp -r /tmp/${MMS_UNPACKED_DIR} ${MMS_HOMEDIR}/
-chown -R ${SVC_USER} ${MMS_HOMEDIR}
+grep ${SVC_USER} /etc/passwd || useradd ${SVC_USER} -d ${MMS_HOMEDIR}
+
+# pass in the expected directory and url
+downloadAgent () {
+  if [ -z $1 ]; then
+    echo "downloadAgent needs 2 args (got zero)"
+    exit 5
+  fi
+  if [ -z $2 ]; then
+    echo "downloadAgent needs 2 args"
+    exit 6
+  fi
+  UNPACKED_DIR=$1
+  DL_URL=$2
+  juju-log "downloading ${UNPACKED_DIR} from ${DL_URL}"
+  rm -rf /tmp/mms.tgz
+  rm -rf /tmp/${UNPACKED_DIR}
+  curl -o /tmp/mms.tgz ${DL_URL}
+  tar zxvf mms.tgz
+  if [ ! -d /tmp/${UNPACKED_DIR} ]; then
+    juju-log "Expected mms contents at /tmp/${UNPACKED_DIR}. not there."
+    exit 1
+  fi
+  cp -r /tmp/${MMS_UNPACKED_DIR} ${MMS_HOMEDIR}/
+  chown -R ${SVC_USER} ${MMS_HOMEDIR}
+}
+
+downloadAgent ${MMS_MONITORING_AGENT_UNPACKED_DIR} ${MMS_MONITORING_AGENT_URL}
+downloadAgent ${MMS_BACKUP_AGENT_UNPACKED_DIR} ${MMS_BACKUP_AGENT_URL}
+
+# rm -rf /tmp/mms.tgz
+# rm -rf /tmp/${MMS_UNPACKED_DIR}
+# curl -o /tmp/mms.tgz $MMS_MONITORING_AGENT_URL
+# tar zxvf mms.tgz
+# if [ ! -d /tmp/${MMS_UNPACKED_DIR} ]; then
+#   juju-log "Expected mms contents at /tmp/${MMS_UNPACKED_DIR}. not there."
+#   exit 1
+# fi
+# juju-log "making ${MMS_MONITORING_AGENT_URL} user"
+# mkdir -p ${MMS_HOMEDIR}
+# grep ${SVC_USER} /etc/passwd || useradd ${SVC_USER} -d ${MMS_HOMEDIR}
+# rm -rf ${MMS_HOMEDIR}/*
+# cp -r /tmp/${MMS_UNPACKED_DIR} ${MMS_HOMEDIR}/
+# chown -R ${SVC_USER} ${MMS_HOMEDIR}
 
 juju-log "Done installing mms"

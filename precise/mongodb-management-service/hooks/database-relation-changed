@@ -33,9 +33,14 @@ LOG_DIR="/var/log/${SVC_NAME}"
 mkdir -p ${LOG_DIR}
 chown -R ${SVC_USER} ${LOG_DIR}
 
-cat <<EOF > /etc/init/${SVC_NAME}.conf
+mkUpstart () {
+  JOB_NAME=$1
+  JOB_DIR=$2
+  JOB_CMD=$3
+  juju-log "mkUpstart ${JOB_NAME} with cmd ${JOB_CMD} in dir ${JOB_DIR}"
+  cat <<EOF > /etc/init/${JOB_NAME}.conf
 #!upstart
-description "${SVC_NAME}"
+description "${JOB_NAME}"
 author      "${SVC_AUTHOR}"
 
 env PATH=/usr/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
@@ -45,13 +50,18 @@ start on runlevel [2345]
 stop on runlevel [016]
 
 setuid $SVC_USER
-chdir "${SVC_HOME}"
+chdir "${JOB_DIR}"
 
 script
-    sh -l -c "nohup python agent.py 2>&1 | tee ${LOG_DIR}/${SVC_NAME}.log"
+sh -l -c "${JOB_CMD} 2>&1 | tee ${LOG_DIR}/${JOB_NAME}.log"
+
 end script
 EOF
+}
+
+mkUpstart ${JOB_MONITORING} ${MMS_MONITORING_HOME} "nohup python agent.py"
+mkUpstart ${JOB_BACKUP} ${MMS_BACKUP_HOME} "nohup ./backup-agent"
 
 juju-log "Restarting ${SVC_NAME}"
-service "${SVC_NAME}" start || service "${SVC_NAME}" restart
+startJobs
 juju-log "started ${SVC_NAME}"

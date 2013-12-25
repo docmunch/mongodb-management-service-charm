@@ -11,5 +11,9 @@ if [ -z $MMS_API_KEY ]; then juju-log "missing MMS_API_KEY"; exit 666; fi
 MMS_SECRET_KEY=$(config-get mms-secret-key)
 if [ -z $MMS_SECRET_KEY ]; then juju-log "missing MMS_SECRET_KEY"; exit 666; fi
 
-sed -i.bak s/\@API_KEY\@/$MMS_API_KEY/ ${MMS_HOME}/settings.py
-sed -i.bak s/\@SECRET_KEY\@/$MMS_SECRET_KEY/ ${MMS_HOME}/settings.py
+juju-log "Configuring MMS Agent"
+sed -i.bak s/\@API_KEY\@/$MMS_API_KEY/ ${MMS_MONITORING_HOME}/settings.py
+sed -i.bak s/\@SECRET_KEY\@/$MMS_SECRET_KEY/ ${MMS_MONITORING_HOME}/settings.py
+
+juju-log "Configuring Backup Agent"
+sed -i.bak s/\@API_KEY\@/$MMS_API_KEY/ ${MMS_BACKUP_HOME}/local.config
