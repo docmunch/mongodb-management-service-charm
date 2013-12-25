@@ -35,16 +35,17 @@ downloadAgent () {
   fi
   UNPACKED_DIR=$1
   DL_URL=$2
+  DL_TMPFILE=${UNPACKED_DIR}.dl.tgz
   juju-log "downloading ${UNPACKED_DIR} from ${DL_URL}"
-  rm -rf /tmp/mms.tgz
-  rm -rf /tmp/${UNPACKED_DIR}
-  curl -o /tmp/mms.tgz ${DL_URL}
-  tar zxvf mms.tgz
-  if [ ! -d /tmp/${UNPACKED_DIR} ]; then
-    juju-log "Expected mms contents at /tmp/${UNPACKED_DIR}. not there."
+  cd ${MMS_HOMEDIR}
+  rm -rf ${DL_TMPFILE}
+  rm -rf ${UNPACKED_DIR}
+  curl -o ${DL_TMPFILE} ${DL_URL}
+  tar zxvf ${DL_TMPFILE}
+  if [ ! -d ${UNPACKED_DIR} ]; then
+    juju-log "Expected mms contents at ${UNPACKED_DIR}. not there."
     exit 1
   fi
-  cp -r /tmp/${MMS_UNPACKED_DIR} ${MMS_HOMEDIR}/
   chown -R ${SVC_USER} ${MMS_HOMEDIR}
 }
 
