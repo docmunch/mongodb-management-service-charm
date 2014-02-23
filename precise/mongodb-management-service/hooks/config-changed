@@ -14,6 +14,8 @@ if [ -z $MMS_SECRET_KEY ]; then juju-log "missing MMS_SECRET_KEY"; exit 666; fi
 juju-log "Configuring MMS Agent"
 sed -i.bak s/\@API_KEY\@/$MMS_API_KEY/ ${MMS_MONITORING_HOME}/settings.py
 sed -i.bak s/\@SECRET_KEY\@/$MMS_SECRET_KEY/ ${MMS_MONITORING_HOME}/settings.py
+sed -i.bak s/\@DEFAULT_REQUIRE_VALID_SERVER_CERTIFICATES\@/False/ ${MMS_MONITORING_HOME}/settings.py
+sed -i.bak s/\@MMS_SERVER\@/"https://mms.mongodb.com"/ ${MMS_MONITORING_HOME}/settings.py
 
 juju-log "Configuring Backup Agent"
 sed -i.bak s/\@API_KEY\@/$MMS_API_KEY/ ${MMS_BACKUP_HOME}/local.config
