@@ -60,7 +60,7 @@ EOF
 }
 
 mkUpstart ${JOB_MONITORING} ${MMS_MONITORING_HOME} "nohup python agent.py"
-mkUpstart ${JOB_BACKUP} ${MMS_BACKUP_HOME} "nohup ./backup-agent"
+mkUpstart ${JOB_BACKUP} ${MMS_BACKUP_HOME} "nohup ./mongodb-mms-backup-agent"
 
 juju-log "Restarting ${SVC_NAME}"
 startJobs
