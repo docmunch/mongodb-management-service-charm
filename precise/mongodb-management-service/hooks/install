@@ -40,7 +40,7 @@ downloadAgent () {
   cd ${MMS_HOMEDIR}
   rm -rf ${DL_TMPFILE}
   rm -rf ${UNPACKED_DIR}
-  curl -o ${DL_TMPFILE} ${DL_URL}
+  curl -L -o ${DL_TMPFILE} ${DL_URL}
   tar zxvf ${DL_TMPFILE}
   if [ ! -d ${UNPACKED_DIR} ]; then
     juju-log "Expected mms contents at ${UNPACKED_DIR}. not there."
