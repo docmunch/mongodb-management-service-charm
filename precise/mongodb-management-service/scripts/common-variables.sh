@@ -4,7 +4,8 @@ SVC_USER=${SVC_NAME}
 
 MMS_HOMEDIR="/srv/mongo-management-service/agent"
 
-MMS_BACKUP_AGENT_URL="https://mms.mongodb.com/settings/mms-backup-agent-docmunch-linux_amd64.tar.gz"
+MMS_BACKUP_AGENT_URL="https://mms.mongodb.com/download/agent/backup/mongodb-mms-backup-agent-1.4.2.23-1.linux_x86_64.tar.gz"
+# MMS_BACKUP_AGENT_URL="https://mms.mongodb.com/settings/mms-backup-agent-docmunch-linux_amd64.tar.gz"
 MMS_BACKUP_AGENT_UNPACKED_DIR="backup-agent"
 MMS_BACKUP_HOME="${MMS_HOMEDIR}/${MMS_BACKUP_AGENT_UNPACKED_DIR}"
 
