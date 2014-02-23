@@ -41,10 +41,14 @@ downloadAgent () {
   rm -rf ${DL_TMPFILE}
   rm -rf ${UNPACKED_DIR}
   curl -L -o ${DL_TMPFILE} ${DL_URL}
+  TAR_DIR=$(tar ztf backup-agent.dl.tgz | head -n 1 | sed -e 's/\/.*//')
+  juju-log "tar output at : ${TAR_DIR}"
   tar zxvf ${DL_TMPFILE}
   if [ ! -d ${UNPACKED_DIR} ]; then
-    juju-log "Expected mms contents at ${UNPACKED_DIR}. not there."
-    exit 1
+    juju-log " mv ${TAR_DIR} ${UNPACKED_DIR} "
+    mv ${TAR_DIR} ${UNPACKED_DIR}
+    # juju-log "Expected mms contents at ${UNPACKED_DIR}. not there."
+    # exit 1
   fi
   chown -R ${SVC_USER} ${MMS_HOMEDIR}
 }
