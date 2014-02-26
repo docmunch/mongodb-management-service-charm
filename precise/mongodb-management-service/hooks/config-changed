@@ -1,7 +1,8 @@
 #!/bin/bash
 # config-changed occurs everytime a new configuration value is updated (juju set)
 
-set -e
+# set -e
+
 
 . $CHARM_DIR/scripts/common-variables.sh
 
