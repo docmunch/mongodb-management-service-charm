@@ -1,7 +1,7 @@
 #!/bin/bash
 # config-changed occurs everytime a new configuration value is updated (juju set)
 
-# set -e
+set -e
 
 
 . $CHARM_DIR/scripts/common-variables.sh
@@ -14,9 +14,12 @@ if [ -z $MMS_SECRET_KEY ]; then juju-log "missing MMS_SECRET_KEY"; exit 666; fi
 
 juju-log "Configuring MMS Agent"
 sed -i.bak s/\@API_KEY\@/$MMS_API_KEY/ ${MMS_MONITORING_HOME}/settings.py
-sed -i.bak s/\@SECRET_KEY\@/$MMS_SECRET_KEY/ ${MMS_MONITORING_HOME}/settings.py
-sed -i.bak s/\@DEFAULT_REQUIRE_VALID_SERVER_CERTIFICATES\@/False/ ${MMS_MONITORING_HOME}/settings.py
-sed -i.bak s/\@MMS_SERVER\@/"https://mms.mongodb.com"/ ${MMS_MONITORING_HOME}/settings.py
+juju-log "Configuring MMS Agent seret key"
+sed -i.bak s/\@SECRET_KEY\@/$MMS_SECRET_KEY/ ${MMS_MONITORING_HOME}/settings.py || echo "no secret key reuired"
+juju-log "Configuring MMS Agent req server certs"
+sed -i.bak s/\@DEFAULT_REQUIRE_VALID_SERVER_CERTIFICATES\@/False/ ${MMS_MONITORING_HOME}/settings.py || echo "no req cert field"
+juju-log "Configuring MMS Agent mms server"
+sed -i.bak s/\@MMS_SERVER\@/"https://mms.mongodb.com"/ ${MMS_MONITORING_HOME}/settings.py || echo "no mms server field"
 
 juju-log "Configuring Backup Agent"
 sed -i.bak s/\@API_KEY\@/$MMS_API_KEY/ ${MMS_BACKUP_HOME}/local.config
